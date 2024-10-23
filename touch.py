@@ -12,6 +12,7 @@ def expand_wildcards(filename_pattern):
     if match:
         start, end = int(match.group(1)), int(match.group(2))
         return [re.sub(r'{\d+\.\.\.\d+}', str(i), filename_pattern) for i in range(start, end + 1)]
+    print(filename_pattern)
     return [filename_pattern]  # No expansion needed
 
 def set_time(path, access_time=None, modification_time=None):
@@ -69,9 +70,20 @@ def main():
     
     args = parser.parse_args()
 
-    for filename_pattern in args.filenames:
-        filenames = expand_wildcards(filename_pattern)
+    # for filename_pattern in args.filenames:
+    #     filenames = expand_wildcards(filename_pattern)
+    #     for filename in filenames:
+    #         touch(filename, no_create=args.no_create, access_only=args.access_time, 
+    #               mod_only=args.modification_time, custom_time=args.time, verbose=args.verbose)
+
+    # above code not work properly for wildcards
+    if args.filenames and re.search(r'{\d+\.\.\.\d+}', args.filenames[0]):
+        filenames = expand_wildcards(args.filenames[0])
         for filename in filenames:
+            touch(filename, no_create=args.no_create, access_only=args.access_time, 
+                  mod_only=args.modification_time, custom_time=args.time, verbose=args.verbose)
+    else:
+        for filename in args.filenames:
             touch(filename, no_create=args.no_create, access_only=args.access_time, 
                   mod_only=args.modification_time, custom_time=args.time, verbose=args.verbose)
 
